@@ -1,10 +1,18 @@
 pipeline {
     agent any
 
+    environment {
+        NEXUS_URL = "http://nexus:8081"
+        NEXUS_REPO = "maven-releases"
+        JAR_NAME = "demo-1.0.0.jar"
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
-                git 'https://github.com/abdallahnammoura/final-k8s-project.git'
+                git branch: 'main',
+                    url: 'https://github.com/abdallahnammoura/final-k8s-project.git'
             }
         }
 
@@ -18,12 +26,13 @@ pipeline {
 
         stage('Upload to Nexus') {
             steps {
-                sh '''
+                sh """
                 curl -u admin:admin123 \
-                --upload-file app/target/*.jar \
-                http://nexus:8081/repository/maven-releases/app.jar
-                '''
+                --upload-file app/target/${JAR_NAME} \
+                ${NEXUS_URL}/repository/${NEXUS_REPO}/${JAR_NAME}
+                """
             }
         }
     }
 }
+
