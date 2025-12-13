@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        NEXUS_URL = "http://nexus:8081"
+        NEXUS_URL  = "http://nexus:8081"
         NEXUS_REPO = "maven-releases"
-        JAR_NAME = "demo-1.0.0.jar"
+        JAR_NAME   = "demo-1.0.0.jar"
     }
 
     stages {
@@ -19,20 +19,24 @@ pipeline {
         stage('Build') {
             steps {
                 dir('app') {
-                    sh './mvnw clean package -DskipTests'
+                    sh '''
+                    chmod +x mvnw
+                    ./mvnw clean package -DskipTests
+                    '''
                 }
             }
         }
 
         stage('Upload to Nexus') {
             steps {
-                sh """
+                sh '''
                 curl -u admin:admin123 \
-                --upload-file app/target/${JAR_NAME} \
-                ${NEXUS_URL}/repository/${NEXUS_REPO}/${JAR_NAME}
-                """
+                  --upload-file app/target/${JAR_NAME} \
+                  ${NEXUS_URL}/repository/${NEXUS_REPO}/${JAR_NAME}
+                '''
             }
         }
     }
 }
+
 
